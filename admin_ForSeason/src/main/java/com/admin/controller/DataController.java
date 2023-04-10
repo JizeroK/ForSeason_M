@@ -21,9 +21,6 @@ public class DataController {
     StockService stockService;
 
     @Autowired
-    OrderService orderService;
-
-    @Autowired
     OrderDetailService orderDetailService;
 
     @Autowired

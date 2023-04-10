@@ -1,0 +1,109 @@
+<style>
+	.listItemName{
+		/*범위 넘어가면 말줄임표로 표현*/
+		display:block; 
+		overflow:hidden; 
+		text-overflow:ellipsis;
+		white-space:nowrap;  
+	}
+</style>
+
+    <div class="bg-light py-3">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 mb-0">
+          	<a th:href="@{/}">Home</a> 
+          	<strong class="text-black">/ BEST 상품</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-section">
+      <div class="container">
+
+
+        <div class="row mb-5">
+          <div class="col-md-9 order-2">
+            
+            
+            <!-- 상품리스트 -->
+            <div class="row mb-5">
+           
+             <!-- 반복문 시작 -->
+             
+              <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up" th:each="o, stat:${itemList}">
+              <img th:if="${stat.index==0}" th:src="@{images/ranking1.png}" style="width:18%; height:10%; margin-bottom: 10px;">
+              <img th:if="${stat.index==1}" th:src="@{images/ranking2.png}" style="width:18%; height:10%; margin-bottom: 10px;">
+              <img th:if="${stat.index==2}" th:src="@{images/ranking3.png}" style="width:18%; height:10%; margin-bottom: 10px;">
+                <div class="block-4 text-center border">
+                  <figure class="block-4-image" style="margin:0px;">  <!-- allCateList.get(item_no).top_cate_no -->
+                    <a th:href="|@{/itemdetail?item_no=}${o.item_no}|">
+                    	<img th:src="|@{img/}${allCateList.get(o.item_no).top_cate_name}/${allCateList.get(o.item_no).mid_cate_name}/${allCateList.get(o.item_no).cate_name}/${o.item_name}/${titleImgList.get(o.item_no)}|" alt="Image placeholder" class="img-fluid">
+                    </a>
+                  </figure>
+                  <div class="block-4-text p-4">
+                    <h3><a th:href="|@{/itemdetail?item_no=}${o.item_no}|" th:text="${o.item_name}" class="listItemName"></a></h3>
+                    <p style="margin-bottom:0px; font-size:22px;"class="text-primary font-weight-bold" th:text="${#numbers.formatInteger(o.item_price, 0, 'COMMA')}"></p>
+                  </div>
+                </div>
+              </div>
+             <!-- 반복문 끝  -->
+      
+            </div>
+            <!-- 상품리스트 end -->
+            
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="site-section site-blocks-2">
+                <div class="row justify-content-center text-center mb-5">
+                  <div class="col-md-7 site-section-heading pt-4">
+                    <h2>Categories</h2>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-6 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade" data-aos-delay="">
+                    <a class="block-2-item" th:href="@{/getItemList?cate_no=1}">
+                      <figure class="image">
+                        <img src="images/women.jpg" alt="" class="img-fluid">
+                      </figure>
+                      <div class="text">
+                        <span class="text-uppercase">Collections</span>
+                        <h3>Women</h3>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="200">
+                    <a class="block-2-item" th:href="@{/getItemList?cate_no=2}">
+                      <figure class="image">
+                        <img src="images/men.jpg" alt="" class="img-fluid">
+                      </figure>
+                      <div class="text">
+                        <span class="text-uppercase">Collections</span>
+                        <h3>Men</h3>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="100">
+                    <a class="block-2-item" th:href="@{/getItemList?cate_no=3}">
+                      <figure class="image">
+                        <img src="images/children.jpg" alt="" class="img-fluid">
+                      </figure>
+                      <div class="text">
+                        <span class="text-uppercase">Collections</span>
+                        <h3>Children</h3>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+   

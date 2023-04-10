@@ -1,47 +1,159 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
 <style>
-li, ul{
-	list-style:none;
-	margin: 0px;
-	padding: 0px;
-}
-#result{
-	width:1000px;
-	margin: 0px auto;
-	border:3px solid blue;
-	overflow:hidden;
-}
-#iimg{
-	width:248px;
-}
-.wrap_ul{
-	border:1px solid red;
-	width: 250px;
-	float:left;
-	margin: 0px 50px 100px 0px;
-}
-.p1{
-	border: 1px solid green;
-	height:250px;
-}
+	.listItemName{
+		/*범위 넘어가면 말줄임표로 표현*/
+		display:block; 
+		overflow:hidden; 
+		text-overflow:ellipsis;
+		white-space:nowrap;  
+	}
 </style>
-</head>
-<body>
-<h1 style="width: 100px; margin: 0px auto;">itemList</h1>   <!--   -->
-<ul id="result">
-	<li class="wrap_ul" th:each="o:${itemList}">
-		<ul>
-			<li class="p1"><a th:href="@{/itemdetail/(cate=${cate},item_no=${o.item_no})}"><img id="iimg" th:src="@{/img/}+${cate}+'/'+${o.item_img}"></a></li>
-			<li th:text="${o.item_name}"></li>
-			<li th:text="${o.item_price}"></li>
-		</ul>
-	</li>
-</ul>
+<script>
+	$(document).ready(function(){	
+		/*<![CDATA[*/
+		var uid="[[${paging.nowPage}]]";
+		var className='.paging_'+uid;
+		var nowPage=document.querySelector(className);
+		nowPage.classList.add('active');
+	/*]]>*/
+	});
+</script>
 
-</body>
-</html>
+    <div class="bg-light py-3">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 mb-0">
+          	<a th:href="@{/}">Home</a> 
+          	<strong th:if="${curCatePath!=null} and ${curCatePath.top_cate_name!=null}" th:text="${'/ '+curCatePath.top_cate_name}" class="text-black"></strong>
+          	<strong th:if="${curCatePath!=null} and ${curCatePath.mid_cate_name!=null}" th:text="${'/ '+curCatePath.mid_cate_name}" class="text-black"></strong>
+          	<strong th:if="${curCatePath!=null} and ${curCatePath.cate_name!=null}" th:text="${'/ '+curCatePath.cate_name}" class="text-black"></strong>
+          	<strong th:if="${curCatePath==null}" class="text-black">/ 검색결과</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-section">
+      <div class="container">
+
+
+        <div class="row mb-5">
+          <div class="col-md-9 order-2">
+
+            <div class="row">
+              <div class="col-md-12 mb-5" style="margin-bottom:2rem!important;">
+                <div class="d-flex">
+                  <div class="dropdown mr-1 ml-md-auto">
+                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" id="dropdownMenuReference" data-toggle="dropdown">상품정렬</button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
+                      <a class="dropdown-item" th:href="|@{/getItemList?cate_no=}${cate_no}&orderBy=new&searchWord=${paging.searchWord}|">최신순</a>
+                      <a class="dropdown-item" th:href="|@{/getItemList?cate_no=}${cate_no}&orderBy=lowPrice&searchWord=${paging.searchWord}|">낮은 가격순</a>
+                      <a class="dropdown-item" th:href="|@{/getItemList?cate_no=}${cate_no}&orderBy=highPrice&searchWord=${paging.searchWord}|">높은 가격순</a>
+                      <a class="dropdown-item" th:href="|@{/getItemList?cate_no=}${cate_no}&orderBy=itemHit&searchWord=${paging.searchWord}|">조회순</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            
+            <!-- 상품리스트 -->
+            <div class="row mb-5">
+           
+             <!-- 반복문 시작 -->
+              <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up" th:each="o:${itemList}">
+                <div class="block-4 text-center border">
+                  <figure class="block-4-image" style="margin:0px;">  <!-- allCateList.get(item_no).top_cate_no -->
+                    <a th:href="|@{/itemdetail?item_no=}${o.item_no}|">
+                    	<img th:src="|@{img/}${allCateList.get(o.item_no).top_cate_name}/${allCateList.get(o.item_no).mid_cate_name}/${allCateList.get(o.item_no).cate_name}/${o.item_name}/${titleImgList.get(o.item_no)}|" alt="Image placeholder" class="img-fluid">
+                    </a>
+                  </figure>
+                  <div class="block-4-text p-4">
+                    <h3><a th:href="|@{/itemdetail?item_no=}${o.item_no}|" th:text="${o.item_name}" class="listItemName"></a></h3>
+                    <p style="margin-bottom:0px; font-size:22px;"class="text-primary font-weight-bold" th:text="${#numbers.formatInteger(o.item_price, 0, 'COMMA')}"></p>
+                  </div>
+                </div>
+              </div>
+             <!-- 반복문 끝  -->
+      
+            </div>
+            <!-- 상품리스트 end -->
+            
+            
+            
+            
+            <!-- 페이징 -->
+            <div class="row" data-aos="fade-up">
+              <div class="col-md-12 text-center">
+                <div class="site-block-27">
+                  <ul id="paging">
+                  	<!-- 이전페이지 버튼 -->
+                    <li th:if="${paging.nowPage}==1"><a href="#none">&lt;</a></li>
+                    <li th:if="${paging.nowPage}>1"><a th:href="|@{/getItemList?cate_no=}${cate_no}&nowPage=${paging.nowPage-1}&orderBy=${paging.orderBy}&searchWord=${paging.searchWord}|">&lt;</a></li>
+                    
+                    <!-- 페이지번호 버튼 -->
+                    <li th:each="i : ${#numbers.sequence(paging.startPage, paging.startPage+paging.onePageCount-1)}" th:if="${paging.totalPage >= i}" th:class="'paging_'+${i}">          
+                       <a th:href="|@{/getItemList?cate_no=}${cate_no}&nowPage=${i}&orderBy=${paging.orderBy}&searchWord=${paging.searchWord}|" th:text="${i}"></a>
+                    </li>
+
+                    <!-- 다음페이지 버튼 -->
+                    <li th:if="${paging.nowPage}>=${paging.totalPage}"><a href="#none">&gt;</a></li>
+                    <li th:if="${paging.nowPage}<${paging.totalPage}"><a th:href="|@{/getItemList?cate_no=}${cate_no}&nowPage=${paging.nowPage+1}&orderBy=${paging.orderBy}&searchWord=${paging.searchWord}|">&gt;</a></li>          
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="site-section site-blocks-2">
+                <div class="row justify-content-center text-center mb-5">
+                  <div class="col-md-7 site-section-heading pt-4">
+                    <h2>Categories</h2>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-6 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade" data-aos-delay="">
+                    <a class="block-2-item" th:href="@{/getItemList?cate_no=1}">
+                      <figure class="image">
+                        <img src="images/women.jpg" alt="" class="img-fluid">
+                      </figure>
+                      <div class="text">
+                        <span class="text-uppercase">Collections</span>
+                        <h3>Women</h3>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="200">
+                    <a class="block-2-item" th:href="@{/getItemList?cate_no=2}">
+                      <figure class="image">
+                        <img src="images/men.jpg" alt="" class="img-fluid">
+                      </figure>
+                      <div class="text">
+                        <span class="text-uppercase">Collections</span>
+                        <h3>Men</h3>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="100">
+                    <a class="block-2-item" th:href="@{/getItemList?cate_no=3}">
+                      <figure class="image">
+                        <img src="images/children.jpg" alt="" class="img-fluid">
+                      </figure>
+                      <div class="text">
+                        <span class="text-uppercase">Collections</span>
+                        <h3>Children</h3>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+   

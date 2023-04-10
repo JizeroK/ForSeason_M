@@ -1,0 +1,90 @@
+
+  <style>
+    #chatbot-icon {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 50px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/6540/6540769.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      text-align: center;
+      cursor: pointer;
+    }
+
+#chatbot-icon:hover {
+  animation: jump 0.5s linear infinite;
+}
+
+@keyframes jump {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-25px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+    
+    
+  </style>
+
+
+<button id="chatbot-icon" data-open="chatbot-modal"> </button>
+
+
+<div class="reveal" id="chatbot-modal" data-reveal>
+  <h1>챗봇</h1>
+  <div>
+    <p>안녕하세요. 챗봇입니다.</p>
+    <ul id="message-area"></ul>
+    <input type="text" id="chat-input" placeholder="Type a message...">
+    <button onclick="ajaxTest()">전송</button>
+  </div>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+
+<script>
+
+  function ajaxTest (){
+    var inputElement = document.getElementById("chat-input");
+    var messageContent = inputElement.value.trim();
+    var messageArea = document.getElementById("message-area");
+    var messageElement = document.createElement('li');
+    var textElement = document.createElement('p');
+    var messageText = document.createTextNode("나:"+messageContent);
+    textElement.appendChild(messageText);
+    messageElement.appendChild(textElement);
+    messageArea.appendChild(messageElement);
+    $.ajax({
+      url:"[[@{/chatBot}]]",
+      data: {messageContent: messageContent},
+      success : function (data){
+        var messageArea = document.getElementById("message-area");
+        var messageElement = document.createElement('li');
+        var textElement = document.createElement('p');
+        var messageText = document.createTextNode("말년이:"+data);
+        textElement.appendChild(messageText);
+        messageElement.appendChild(textElement);
+        messageArea.appendChild(messageElement);
+      }
+    })
+  }
+
+
+
+
+
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.6.3/js/foundation.min.js"></script>
+<script>
+  $(document).foundation();
+</script>

@@ -1,0 +1,231 @@
+<script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="index.html">Home</a> <span class="mx-2 mb-0">/</span> <a
+                    href="cart.html">Cart</a> <span class="mx-2 mb-0">/</span> <strong
+                    class="text-black">Checkout</strong></div>
+        </div>
+    </div>
+</div>
+
+<div class="site-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-5 mb-md-0">
+                <h2 class="h3 mb-3 text-black">주문 정보</h2>
+                <div class="p-3 p-lg-5 border">
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label class="text-black">주문자명<span class="text-danger">*</span></label></br>
+                            <input type="text" name="user_name" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-black">수령인명<span class="text-danger">*</span></label></br>
+                            <input type="text" name="ship_cust" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="text-black">주소<span class="text-danger">*</span></label></br>
+                            <input type="text" id="address_kakao" name="address" class="form-control" readonly placeholder="검색"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-black">우편번호<span class="text-danger">*</span></label></br>
+                        <input type="text" id="address_post" class="form-control" placeholder="ex)12345"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-black">상세주소<span class="text-danger">*</span></label></br>
+                        <input type="text" id="address_detail" name="address_detail" class="form-control" placeholder="ex)4조타운 404동 404호"/>
+                    </div>
+
+                    <div class="form-group row mb-5">
+                        <div class="col-md-6">
+                            <label for="c_email_address" class="text-black">이메일 <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="c_email_address" name="c_email_address"
+                                   placeholder="ex)4jomail@google.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="c_phone" class="text-black">휴대폰번호 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="c_phone" name="c_phone"
+                                   placeholder="Phone Number">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+
+                <div class="row mb-5">
+                    <div class="col-md-12">
+                        <h2 class="h3 mb-3 text-black">쿠폰 리스트</h2>
+                        <div class="p-3 p-lg-5 border">
+                            <div class="input-group w-75">
+                                <div class="input-group-append">
+                                    <input type="button" id="showCouponList" onclick="showCouponList()" class="btn btn-primary" value="쿠폰리스트" style="height: 31px; line-height:20px;">
+                                    <span name="coupon"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-5">
+                    <div class="col-md-12">
+                        <h2 class="h3 mb-3 text-black">최종 결제 금액</h2>
+                        <div class="p-3 p-lg-5 border">
+                            <table class="table site-block-order-table mb-5">
+                                <thead>
+                                <th>상품</th>
+                                <th>수량</th>
+                                <th>총액</th>
+                                </thead>
+                                <tbody>
+                                <tr th:each="item, stat:${itemList}">
+                                    <td th:text="|${item.item_name} ${stockList[stat.index].size_name}&${stockList[stat.index].color_name}|"><strong class="mx-2"></strong></td>
+                                    <td th:text="${cartList[stat.index].cart_cnt}"><strong class="mx-2"></strong></td>
+                                    <td th:if="${item.item_discnt == 0}">
+                                        <ta th:text="${item.item_price * cartList[stat.index].cart_cnt}"></ta>
+                                    </td>
+                                    <td th:if="${item.item_discnt != 0}">
+                                        <ta th:text="${(item.item_price - item.item_price*item.item_discnt/100)* cartList[stat.index].cart_cnt}"></ta>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-black font-weight-bold" style="width:280px; line-height:35px;"><strong>주문 총액</strong></td>
+                                    <td></td>
+                                    <td class="text-black font-weight-bold" ><input name="item_price" th:value="${item_tot}" readonly style="outline:none; width:80px;" ></td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-lg py-3 btn-block" onclick="requestPay();">KAKAO PAY 결제하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var coupon_no = "0";
+    var item_tot = $('input[name="item_price"]').val();
+    var cou_pirce = "0";
+    $(document).ready(function () {
+        item_tot = $("input[name=item_price]").val();
+        cou_pirce = "0";
+        coupon_no = "0";
+        if ($('input[name="ship_cust"]').val() == null && $('input[name="ship_cust"]').val() == "") {
+            $('input[name="ship_cust"]').focus();
+        }
+    });
+    var address;
+    var zonecode;
+    document.addEventListener("DOMContentLoaded", function() {
+        var address_kakao = document.getElementById("address_kakao");
+        if (address_kakao) {
+            address_kakao.addEventListener("click", function() {
+                new daum.Postcode({
+                    oncomplete: function(data) {
+                        document.getElementById("address_kakao").value = data.address;
+                        address = data.address;
+                    }
+                }).open();
+            });
+        }
+    });
+    function requestPay() {
+        IMP.init('imp53685653');
+        IMP.request_pay({
+            pg: 'kakaopay',
+            pay_method: 'kakao',
+            merchant_uid: '1' + new Date(),
+            name: '[[${item_name}]]',
+            amount: item_tot,
+            buyer_email: $("#c_email_address").val(),
+            buyer_name: $('input[name="user_name"]').val(),
+            buyer_tel: $("#c_phone").val(),
+            buyer_addr: address,
+            buyer_postcode: zonecode
+        }, function (rsp) {
+            if (rsp.success) {
+                $.ajax({
+                    url: "[[@{/order/order_detail}]]", // 결제 완료 후 주문테이블에 넣어줄 링크
+                    type: 'post',
+                    data:
+                        JSON.stringify({
+                            "order_tot": rsp.paid_amount,
+                            "order_pay": "카카오페이",
+                            "ship_addr": rsp.buyer_addr,
+                            "ship_cust": $('input[name="ship_cust"]').val(),
+                            "ship_stat": "입고 준비중",
+                            "order_stat": "결제완료",
+                            "coupon_no": coupon_no,
+                            "cou_price": $(".coupon-select option:selected").text()
+                        }),
+                    contentType: 'application/json; charset=utf-8'
+                });
+                var msg = "";
+                msg += '고유ID : ' + rsp.imp_uid;
+                msg += '상점 거래ID : ' + rsp.merchant_uid;
+                msg += '결제 금액 : ' + rsp.paid_amount;
+                msg += '카드 승인번호 : ' + rsp.apply_num;
+                alert(msg);
+                location.href = "[[@{/ordercomplete}]]";
+
+            } else {
+                var msg = '결제에 실패하였습니다.';
+                msg += '에러내용 : ' + rsp.error_msg;
+                alert(msg);
+            }
+        });
+    };
+
+    function showCouponList() {
+        $.ajax({
+            type: "get",
+            url: "/couponList",
+            success: function (coulist) {
+
+                var htmls = ""
+                if (coulist == 0) {
+                    htmls += "보유한 쿠폰이 없습니다."
+                } else {
+                    htmls += "<select class=\"coupon-select\" aria-label=\"Default select example\">"
+                    htmls += "	<option selected disabled>쿠폰을 선택해주세요</option>"
+                    htmls += "	<option value=\"0\">0 을 누를시 쿠폰을 사용하지 않습니다.</option>"
+                    $(coulist).each(function () {
+                        htmls += "<option value=" + this.cou_no + ">" + this.cou_price + "</option>"
+                    })
+                    htmls += "</select>"
+                }
+                $('span[name="coupon"]').html(htmls);
+                $('span[name="coupon"]').change(function () {
+                    item_tot = $("input[name=item_price]").val();
+                    coupon_no = $(".coupon-select option:selected").val();
+                    cou_price = $(".coupon-select option:selected").text();
+                    itemCalculator(coupon_no);
+                    $('input[name="item_price"]').val(item_tot);
+                })
+            }
+        })
+
+    }
+
+    function itemCalculator(index) {
+        item_tot = '[[${item_tot}]]';
+        if(index != 0){
+            return item_tot -= cou_price;
+        }
+        return;
+    }
+</script>
+  

@@ -1,0 +1,89 @@
+@charset "UTF-8";
+
+.WHITE{
+	background-color: white;
+}
+.OFFWHITE{
+	background-color: whitesmoke;
+}
+.LIGHTGRAY{ 
+	background-color: lightgray;
+} 
+.GRAY{
+	background-color: gray;
+}
+.DARKGRAY{ 
+	background-color: darkgray;
+}
+.BLACK{
+	background-color: black;
+}
+.PINK{
+	background-color: pink;
+}
+.RED{
+	background-color: red;
+}
+.WINE{
+	background-color: #881824;
+}
+.LIGHTORANGE{
+	background-color: #FFB85A;
+}
+.ORANGE{
+	background-color: orange;
+}
+.NATURAL{
+	background-color: moccasin;
+}
+.BEIGE{
+	background-color: beige;
+}
+.KHAKI{
+	background-color: khaki;
+}
+.BROWN{
+	background-color: brown;
+}
+.DARK BROWN{
+	background-color: saddlebrown;
+}
+.CREAM{
+	background-color: #F9E5BC;
+}
+.YELLOW{
+	background-color: yellow;
+}
+.MUSTARD{
+	background-color: #FFDB58;
+}
+.LIGHTGREEN{
+	background-color: lightgreen;
+}
+.GREEN{
+	background-color: green;
+}
+.OLIVE{
+	background-color: olive;
+}
+.DARKGREEN{
+	background-color: darkgreen;
+}
+.LIGHTBLUE{
+	background-color: lightblue;
+}
+.BLUE{
+	background-color: blue;
+}
+.NAVY{
+	background-color: navy;
+}
+.PURPLE{
+	background-color: purple;
+}
+.DARKPURPLE{
+	background-color: Indigo;
+}
+.other{
+	background-color: #F7F7F7;
+}

@@ -1,0 +1,259 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<style>
+    #cartTableHeader > th {
+        font-size: 17px;
+        padding: 10px;
+    }
+
+    #cartTableHeader > th:nth-child(7) {
+        width: 125px;
+    }
+
+
+</style>
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a th:href="@{/}">Home</a> <span class="mx-2 mb-0">/</span> <strong
+                    class="text-black">Cart</strong></div>
+        </div>
+    </div>
+</div>
+<div class="site-section">
+    <div class="container">
+        <div class="row mb-5">
+            <form class="col-md-12" method="post">
+                <div class="site-blocks-table">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr id="cartTableHeader">
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="selectAll" value="selectAll"
+                                           onclick='window.selectAll(this)'/>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </td>
+                            <th class="cart-name">번호</th>
+                            <th class="product-name">상품 이름</th>
+                            <th class="product-size&color">사이즈/색상</th>
+                            <th class="product-price">상품가격</th>
+                            <th class="product-quantity">상품수량</th>
+                            <th class="product-total">총액</th>
+                            <th class="product-remove">삭제</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="cart, stat:${cart}">
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="checkbox" th:value="${cart.cart_no}"
+                                           onclick='checkselectAll()'>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </td>
+                            <td class="cart-name"><h2 class="h5 text-black" th:text="${stat.count}"></h2></td>
+                            <td class="product-name" th:text="${item[stat.index].item_name}"></td>
+                            <td class="product-size&color"
+                                th:text="|${stock[stat.index].size_name}&${stock[stat.index].color_name}|"></td>
+                            <td class="product-price" th:value="${item[stat.index].item_price}"
+                                th:text="|원가:${item[stat.index].item_price} 할인율:${item[stat.index].item_discnt}%|"
+                                style="padding: 0px 5px 0px;"></td>
+                            <td class="product-quantity" style="width: 130px; padding-top:30px; padding-bottom:10px;">
+                                <div class="input-group mb-3" style="width: 120px;">
+                                    <button class="quantity-minus btn btn-outline-primary" type="button">&minus;
+                                    </button>
+                                    <input type="text" class="form-control text-center" th:value="${cart.cart_cnt}">
+                                    <button class="quantity-plus btn btn-outline-primary" type="button">&plus;</button>
+                                </div>
+                            </td>
+                            <td class="product-total" id="totalPrice" th:if="${item[stat.index].item_discnt} == 0">
+                                <input type="hidden" th:value="${item[stat.index].item_price}">
+                                <h4 th:text="${cart.cart_cnt * item[stat.index].item_price}"></h4>
+                            </td>
+                            <td class="product-total" id="totalPrice" th:if="${item[stat.index].item_discnt} > 0">
+                                <input type="hidden"
+                                       th:value="${item[stat.index].item_price - item[stat.index].item_price * item[stat.index].item_discnt / 100}">
+                                <h4 th:text="${(item[stat.index].item_price - item[stat.index].item_price * item[stat.index].item_discnt / 100)* cart.cart_cnt}"></h4>
+                            </td>
+                            <td>
+                                <button class="product-remove btn-primary btn-sm" type="button" th:id="${cart.cart_no}"
+                                        style="border: 0px;">삭제
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row mb-5">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <button class="btn btn-primary btn-sm btn-block">Update Cart</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary btn-sm btn-block" th:onclick="|location.href='@{/}'|">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pl-5">
+                <div class="row justify-content-end">
+                    <div class="col-md-7">
+                        <div class="row">
+                            <div class="col-md-12 text-right border-bottom mb-5">
+                                <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
+                            </div>
+                        </div>
+                        <div class="row mb-3" style="font-size:20px;">
+                            <div class="col-md-6">
+                                <span class="text-black">총액</span>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <strong id="itemTotalPrice" class="text-black itemtotal">0</strong>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button class="btn btn-primary btn-lg py-3 btn-block" onclick="getCheckboxValue();">
+                                    Proceed To
+                                    Checkout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(".quantity-plus").on("click", function () {
+        let quantity = $(this).parent("div").find("input").val();
+        let item_price = $(this).parents("tr").find(".product-total").find("input").val();
+        $(this).parent("div").find("input").val(++quantity);
+        $(this).parents("tr").find(".product-total").find("h4").html(item_price * quantity);
+        getItemTotalPrice();
+
+    });
+    $(".quantity-minus").on("click", function () {
+        let quantity = $(this).parent("div").find("input").val();
+        let item_price = $(this).parents("tr").find(".product-total").find("input").val();
+        if (quantity > 1) {
+            $(this).parent("div").find("input").val(--quantity);
+            $(this).parents("tr").find(".product-total").find("h4").html(item_price * quantity);
+        }
+        getItemTotalPrice();
+    });
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 개별 상품 'X' 버튼 (삭제)
+        let removeBtns = document.querySelectorAll('.product-remove');
+        removeBtns.forEach((button) => {
+            button.addEventListener('click', (e) => {
+                // 해당 cartProductId를 데이터베이스에서 삭제하고 cart 페이지로 이동
+                let cartProductId = e.target.id;
+                console.log(cartProductId);
+                $.ajax({
+                    url    : '[[@{/cart/deleteCart/}]]',
+                    data   : {
+                        "cart_no": cartProductId
+                    },
+                    success: function () {
+                        location.href = "[[@{/cart}]]"
+                        console.log("success")
+                    },
+                    error  : function () {
+                        console.log("error")
+                        alert("error")
+                    }
+                })
+            })
+        });
+    });
+
+    function selectAll(selectAll) {
+        const checkboxes
+            = document.getElementsByName("checkbox");
+
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = selectAll.checked;
+        })
+
+        var totalPrice = 0;
+
+        getItemTotalPrice();
+
+    }
+
+    function getCheckboxValue() {
+        // 선택된 목록 가져오기
+        const selectedEls =
+            document.querySelectorAll('input[name="checkbox"]:checked');
+        // 선택된 목록에서 value 찾기
+        var result = [];
+        var cart_cnt = []
+        selectedEls.forEach((el) => {
+            cart_cnt.push($(el).parents("tr").find(".product-quantity").find("div").find("input").val());
+            result.push(el.value);
+        });
+        console.log("result:" + result);
+        var c = confirm('결제 하시겠습니까?');
+        if (c == true) {
+            $.ajax({
+                url    : '[[@{/orderByCartList}]]',
+                type   : 'post',
+                data   : {
+                    cartList   : result,
+                    cartCntList: cart_cnt
+                },
+                success: function () {
+                    location.href = "/order";
+                },
+                error  : function () {
+                    alert("상품을 선택해주세요.");
+                }
+            });
+        }
+    }
+
+    function checkselectAll() {
+        // 전체 체크박스
+        const checkboxes
+            = document.querySelectorAll('input[name="checkbox"]');
+        // 선택된 체크박스
+        const checked
+            = document.querySelectorAll('input[name="checkbox"]:checked');
+        // select all 체크박스
+        const selectAll
+            = document.querySelector('input[name="selectAll"]');
+        if (checkboxes.length === checked.length) {
+            selectAll.checked = true;
+        } else {
+            selectAll.checked = false;
+        }
+
+        getItemTotalPrice();
+
+    }
+
+    function getItemTotalPrice() {
+        var totalPrice = 0;
+
+        // 체크된 것들의 총액 가져와서 표시
+        const selectedEls = document.querySelectorAll('input[name="checkbox"]:checked');
+        selectedEls.forEach((el) => {
+            var tmp = Number($(el).parents("tr").find(".product-total").find("h4").text());
+            totalPrice = totalPrice + tmp;
+        })
+
+        $("#itemTotalPrice").text(totalPrice);
+    }
+
+</script>
